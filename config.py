@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_string('dir_parameter', './out/parameter',
 ############# MODEL ######################
 
 # noise level of denoise auto encoder
-tf.app.flags.DEFINE_float('noise', 0.01,
+tf.app.flags.DEFINE_float('noise', 0.4,
                            """noise level of denoising auto encoder""")
 
 
@@ -34,7 +34,7 @@ tf.app.flags.DEFINE_float('noise', 0.01,
 
 VARIABLE_AVERAGE_DECAY=0.999
 
-tf.app.flags.DEFINE_integer('max_steps', 60000,
+tf.app.flags.DEFINE_integer('max_steps', 30000,
                             """max_steps""")
 
 tf.app.flags.DEFINE_float('lr', 2.0e-4,

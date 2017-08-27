@@ -16,6 +16,8 @@ import tensorflow as tf
 import config
 from dataset.mnist_splitter import DIR_MNIST
 
+FLAGS = tf.app.flags.FLAGS
+
 class MNIST(object):
 
     def __init__(self, is_train, batch_size=64, dir_root=DIR_MNIST):

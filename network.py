@@ -56,10 +56,10 @@ class EBM(object):
         images = tf.transpose(images, perm=[0, 3, 1, 2])
         features = images
 
-        for idx_layer in range(2):
+        for idx_layer in range(1):
             layer_name = "layer{}".format(idx_layer)
             with tf.variable_scope(layer_name):
-                filter_size = 5
+                filter_size = 7
                 in_channel = features.shape.as_list()[1]
                 out_channel = 64
 
@@ -69,7 +69,9 @@ class EBM(object):
                 features = tf.nn.conv2d(features, filter, strides=[1,1,1,1], padding="VALID", data_format="NCHW")
                 features = tf.nn.bias_add(features, bias, data_format="NCHW")
 
-                features = tf.nn.relu(features)
+                # MEMO: sigmoid関数を使うことで損失が大幅に落ちる (損失の大小がモデルのクオリティではない)
+                #features = tf.nn.relu(features)
+                features = tf.nn.sigmoid(features)
 
                 features = tf.nn.max_pool(features, ksize=[1,1,2,2], strides=[1,1,2,2], padding="VALID", data_format="NCHW")
 
@@ -95,10 +97,11 @@ class EBM(object):
             flatten = tf.reshape(images, shape=[-1, in_channel])
 
             prior = self._get_variable(shape=[in_channel], name="prior", initializer=tf.constant_initializer(0.5))
+            #prior = self._get_variable(shape=[1], name="prior", initializer=tf.constant_initializer(0.5))
 
-            # MEMO: I cannot optimize with reduce_sum as the paper. so I used reduce_mean
-            E1 = tf.multiply(0.5, tf.reduce_mean(tf.square(flatten - prior), axis=1), name="E1")
-            #E1 = tf.multiply(0.0, tf.reduce_mean(tf.square(flatten - prior), axis=1), name="E1")
+            # MEMO: 絶対に必要な項 (少なくともmnistでは)
+            E1 = tf.multiply(0.5, tf.reduce_sum(tf.square(flatten - prior), axis=1), name="E1")
+
             tf.summary.histogram("E1", E1)
 
         energy = tf.subtract(E1, E2, name="Energy")
